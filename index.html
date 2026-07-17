@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membresías de Robux | Elige tu Plan</title>
+    <style>
+        :root {
+            /* Paleta de colores inspirada en el logotipo Kyon Up */
+            --bg-color: #0b071a; /* Fondo ultra oscuro con un matiz púrpura profundo */
+            --card-bg: #140e2e; /* Tarjetas con base púrpura oscuro */
+            --text-main: #f8fafc;
+            --text-muted: #a78bfa; /* Púrpura pastel suave para textos secundarios */
+            --basic-color: #f59e0b; /* Amarillo/Dorado para la Básica */
+            --silver-color: #cbd5e1; /* Plata */
+            
+            /* Colores de neón de tu marca */
+            --neon-purple: #a855f7; 
+            --neon-cyan: #06b6d4; 
+            --neon-gradient: linear-gradient(135deg, #a855f7 0%, #06b6d4 100%);
+            --whatsapp-color: #25d366;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(6, 118, 212, 0.15) 0px, transparent 50%);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 3rem 1rem 2rem 1rem;
+        }
+
+        /* PANTALLA DE BIENVENIDA (POPUP / OVERLAY) */
+        .welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 50% 0%, rgba(168, 85, 247, 0.25) 0px, transparent 60%),
+                radial-gradient(at 50% 100%, rgba(6, 182, 212, 0.2) 0px, transparent 60%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 2rem;
+            text-align: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        /* RECUADRO BLANCO PARA EL LOGO CON SOMBRA DE NEÓN */
+        .logo-box {
+            background-color: #ffffff;
+            padding: 1.5rem 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.4), 0 0 60px rgba(6, 182, 212, 0.2);
+            margin-bottom: 2.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 420px;
+            width: 90%;
+        }
+
+        .welcome-logo {
+            width: 100%;
+            height: auto;
+            display: block;
+            opacity: 1 !important;
+        }
+
+        .welcome-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #ffffff, var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-text {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            max-width: 500px;
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .btn-enter {
+            background: var(--neon-gradient);
+            color: #ffffff;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-enter:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.6);
+        }
+
+        /* ESTRUCTURA DE VISTAS */
+        .view {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .overlay-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            margin-top: 1rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: var(--neon-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .pricing-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            width: 100%;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid #2e1d61;
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.2);
+        }
+
+        .card.basic { border-top: 5px solid var(--basic-color); }
+        .card.silver { border-top: 5px solid var(--silver-color); }
+        
+        /* Diamante usando el gradiente neón de Kyon Up */
+        .card.diamond {
+            border: 2px solid var(--neon-cyan);
+            transform: scale(1.03);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.15);
+        }
+        
+        .card.diamond:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 0 35px rgba(6, 182, 212, 0.35);
+        }
+
+        .badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--neon-gradient);
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+
+        .tier-name {
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .basic .tier-name { color: var(--basic-color); }
+        .silver .tier-name { color: var(--silver-color); }
+        .diamond .tier-name { color: var(--neon-cyan); }
+
+        .price {
+            font-size: 2.3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: baseline;
+        }
+
+        .price span {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: normal;
+            margin-left: 0.25rem;
+        }
+
+        .features {
+            list-style: none;
+            margin-bottom: 2.5rem;
+            flex-grow: 1;
+        }
+
+        .features li {
+            margin-bottom: 0.75rem;
+            color: #d8b4fe; /* Tono lila para mejor lectura en fondo oscuro */
+            display: flex;
+            align-items: flex-start;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .features li::before {
+            content: "✓";
+            color: var(--neon-cyan);
+            font-weight: bold;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            display: block;
+            text-align: center;
+            padding: 0.85rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-basic { background-color: transparent; color: var(--basic-color); border: 2px solid var(--basic-color); }
+        .btn-basic:hover { background-color: var(--basic-color); color: #0f172a; }
+
+        .btn-silver { background-color: transparent; color: var(--silver-color); border: 2px solid var(--silver-color); }
+        .btn-silver:hover { background-color: var(--silver-color); color: #0f172a; }
+
+        .btn-diamond { background: var(--neon-gradient); color: #ffffff; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); }
+        .btn-diamond:hover { opacity: 0.95; box-shadow: 0 0 25px rgba(6, 182, 212, 0.5); }
+
+        .btn-back {
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 1px solid #2e1d61;
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+            align-self: flex-start;
+        }
+        .btn-back:hover { background-color: #2e1d61; color: var(--text-main); }
+
+        .btn-whatsapp {
+            background-color: var(--whatsapp-color);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            width: 100%;
+        }
+        .btn-whatsapp:hover { opacity: 0.9; }
+
+        /* Vista de detalle */
+        .detail-container {
+            max-width: 600px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            border: 1px solid #2e1d61;
+        }
+
+        .detail-container .price {
+            border-bottom: 1px solid #2e1d61;
+            padding-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- VENTANA DE BIENVENIDA AL ABRIR LA PÁGINA -->
+    <div id="welcome-screen" class="welcome-overlay">
+        <!-- Contenedor blanco para el logo cargado localmente -->
+        <div class="logo-box">
+            <img class="welcome-logo" src="img/kyon up logo.png" alt="Kyon Up Logo">
+        </div>
+        <h2 class="welcome-title">¡Te damos la bienvenida a Kyon Up!</h2>
+        <p class="welcome-text">Elige el plan de membresía que mejor se adapte a ti y asegura tus Robux mensuales con los mejores beneficios del mercado.</p>
+        <button class="btn-enter" onclick="closeWelcome()">Ver Membresías</button>
+    </div>
+
+    <!-- VISTA PRINCIPAL -->
+    <div id="main-view" class="view">
+        <header>
+            <h1>Membresías Exclusivas</h1>
+            <p>Asegura tus Robux mensuales, obtén descuentos y beneficios únicos</p>
+        </header>
+
+        <main class="pricing-container">
+            <!-- Membresía Básica -->
+            <section class="card basic">
+                <div class="tier-name">⚡ Básica</div>
+                <div class="price">5.500 bs<span>/mes</span></div>
+                <ul class="features">
+                    <li><strong>300 Robux</strong> garantizados</li>
+                    <li><strong>5% de descuento</strong> en tus primeras 3 recargas</li>
+                    <li>Atención estándar con entrega rápida de código</li>
+                </ul>
+                <button class="btn btn-basic" onclick="showDetail('basic')">Adquirir Básica</button>
+            </section>
+
+            <!-- Membresía Plata -->
+            <section class="card silver">
+                <div class="tier-name">🥈 Plata</div>
+                <div class="price">9.000 bs<span>/mes</span></div>
+                <ul class="features">
+                    <li><strong>500 Robux</strong> garantizados</li>
+                    <li><strong>8% de descuento</strong> en tus primeras 5 recargas</li>
+                    <li><strong>Prioridad de entrega</strong> sobre lo normal</li>
+                    <li>Sorteo de 100 Robux para miembros Plata</li>
+                </ul>
+                <button class="btn btn-silver" onclick="showDetail('silver')">Adquirir Plata</button>
+            </section>
+
+            <!-- Membresía Diamante -->
+            <section class="card diamond">
+                <span class="badge">Recomendado</span>
+                <div class="tier-name">💎 Diamante</div>
+                <div class="price">21.000 bs<span>/mes</span></div>
+                <ul class="features">
+                    <li><strong>1480 Robux</strong> garantizados</li>
+                    <li><strong>12% de descuento</strong> en tus primeras 10 compras</li>
+                    <li><strong>Prioridad VIP</strong> en atención y velocidad</li>
+                    <li>Sorteo mensual de 300 Robux para Diamante</li>
+                </ul>
+                <button class="btn btn-diamond" onclick="showDetail('diamond')">Adquirir Diamante</button>
+            </section>
+        </main>
+    </div>
+
+    <!-- VISTA DE DETALLE (DINÁMICA) -->
+    <div id="detail-view" class="view hidden">
+        <button class="btn btn-back" onclick="showMain()">← Volver a los planes</button>
+        
+        <div id="detail-card" class="detail-container">
+            <div id="detail-content"></div>
+            <a id="whatsapp-link" href="#" class="btn btn-whatsapp">
+                💬 Solicitar por WhatsApp
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Configura aquí tu número de teléfono de WhatsApp (incluye código de país)
+        const WHATSAPP_NUMBER = "584120000000"; 
+
+        // Datos de las membresías
+        const tiers = {
+            basic: {
+                title: "⚡ Membresía Básica",
+                price: "5.500 bs",
+                className: "basic",
+                msg: "Hola, quiero adquirir la membresía Básica",
+                features: [
+                    "300 Robux garantizados",
+                    "Beneficio del 5% de descuento en tus primeras 3 recargas del mes",
+                    "Atención estándar con entrega rápida de su código de reclamación"
+                ]
+            },
+            silver: {
+                title: "🥈 Membresía Plata",
+                price: "9.000 bs",
+                className: "silver",
+                msg: "Hola, quiero adquirir la membresía Plata",
+                features: [
+                    "500 robux garantizados",
+                    "Beneficio del 8% de descuento en tus primeras 5 recargas del mes",
+                    "Prioridad de entrega: su recarga será priorizada por encima de lo normal",
+                    "Participación automática en un sorteo de 100 robux exclusivo para miembros plata"
+                ]
+            },
+            diamond: {
+                title: "💎 Membresía Diamante",
+                price: "21.000 bs",
+                className: "diamond",
+                msg: "Hola, quiero adquirir la membresía Diamante",
+                features: [
+                    "1480 robux garantizados",
+                    "12% de descuento en tus primeras 10 compras del mes",
+                    "Prioridad vip: atención y velocidad de entrega por encima de los demás",
+                    "Participación automática en un sorteo de 300 Robux al mes, exclusivo para miembros diamante"
+                ]
+            }
+        };
+
+        function closeWelcome() {
+            const welcomeScreen = document.getElementById('welcome-screen');
+            welcomeScreen.classList.add('overlay-hidden');
+        }
+
+        function showDetail(tierKey) {
+            const data = tiers[tierKey];
+            const contentDiv = document.getElementById('detail-content');
+            const detailCard = document.getElementById('detail-card');
+            
+            detailCard.className = "detail-container " + data.className;
+
+            let featuresHTML = '<ul class="features">';
+            data.features.forEach(feat => {
+                featuresHTML += `<li>${feat}</li>`;
+            });
+            featuresHTML += '</ul>';
+
+            contentDiv.innerHTML = `
+                <div class="tier-name">${data.title}</div>
+                <div class="price">${data.price}<span>/mes</span></div>
+                <h3 style="margin: 1.5rem 0 1rem 0; color: var(--text-main);">Especificaciones del plan:</h3>
+                ${featuresHTML}
+            `;
+
+            const sniperMessage = encodeURIComponent(data.msg);
+            document.getElementById('whatsapp-link').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${sniperMessage}`;
+
+            document.getElementById('main-view').classList.add('hidden');
+            document.getElementById('detail-view').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function showMain() {
+            document.getElementById('detail-view').classList.add('hidden');
+            document.getElementById('main-view').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
